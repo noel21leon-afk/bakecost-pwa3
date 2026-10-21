@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2b1a12">
+<meta name="description" content="Baker's cost and selling price calculator. Works offline.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BakeCost">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>BakeCost – Baker's Cost & Selling Price Calculator</title>
+<style>
+:root{--crust:#2b1a12;--crust2:#4a2c1d;--butter:#f4c542;--butter2:#ffe39a;--jam:#b83b5e;--oat:#efe6d8;--card:#f8f0e3;--line:#cdb9a2;--ink:#2b1a12;--mute:#7a6554;--ok:#3f7d4e;--serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}html{background:var(--oat)}
+body{margin:0;font:16px/1.45 var(--sans);color:var(--ink);background:radial-gradient(circle at 12% -5%,#fff6e2 0,transparent 45%),var(--oat);padding-bottom:170px}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px}
+header{background:var(--crust);color:#fff;padding:22px 0 56px;border-radius:0 0 34px 34px;position:relative;overflow:hidden}
+header:after{content:"🥐";position:absolute;right:-6px;bottom:-22px;font-size:96px;opacity:.16;transform:rotate(-14deg)}
+header h1{font:800 clamp(26px,6vw,36px)/1.05 var(--serif);margin:0}
+header p{margin:6px 0 0;color:var(--butter2);font-size:15px}
+.sum{position:sticky;top:8px;z-index:30;margin:-34px 0 16px;background:var(--butter);color:var(--crust);border-radius:20px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 10px 24px rgba(43,26,18,.28),0 0 0 3px var(--crust)}
+.sum small{display:block;font-size:13px;font-weight:700;opacity:.8}
+.sum b{font:800 clamp(30px,9vw,42px)/1 var(--serif)}
+.sum .r{text-align:right;font-size:14px;font-weight:700}
+.sum .r span{display:block;font-size:18px;font-family:var(--serif)}
+.page{display:none}.page.on{display:block}
+.card{background:var(--card);border:2px solid #e2d3bd;border-radius:22px;padding:18px;margin-bottom:16px}
+h2{font:800 22px/1.2 var(--serif);margin:0 0 14px;display:flex;align-items:center;gap:10px}
+h2 em{font-style:normal;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--butter);font-size:20px}
+label{display:block;font-weight:700;font-size:14px;color:var(--crust2)}
+.in{display:block;width:100%;height:52px;margin-top:6px;padding:0 14px;font:600 17px var(--sans);color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:14px;box-shadow:inset 0 2px 3px rgba(43,26,18,.09);outline:0;transition:.15s}
+.in::placeholder{color:#b3a392;font-weight:500}
+.in:hover{border-color:#a98f72}
+.in:focus{border-color:var(--crust);box-shadow:0 0 0 4px rgba(244,197,66,.6)}
+.cur{position:relative}.cur i{position:absolute;left:14px;top:6px;height:52px;display:grid;place-items:center;font-style:normal;font-weight:800;color:var(--mute)}.cur .in{padding-left:34px}
+.sfx{position:relative}.sfx i{position:absolute;right:14px;top:6px;height:52px;display:grid;place-items:center;font-style:normal;color:var(--mute);font-weight:700;pointer-events:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.chip{border:2px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font:700 14px var(--sans);color:var(--crust2);cursor:pointer}
+.chip:hover,.chip.on{background:var(--crust);border-color:var(--crust);color:var(--butter)}
+.ing,.pit{background:#fff;border:2px solid #e2d3bd;border-left:8px solid var(--butter);border-radius:18px;padding:14px;margin-bottom:12px}
+.ih{display:flex;gap:10px;align-items:center}
+.em{font-size:30px;width:50px;height:52px;display:grid;place-items:center;background:var(--card);border-radius:14px;flex:none;margin-top:6px}
+.ih .in{flex:1;font-size:18px;font-weight:800}
+.x{margin-top:6px;width:50px;height:52px;border:2px solid #efc9cf;background:#fff3f4;color:var(--jam);border-radius:14px;font-size:20px;cursor:pointer;flex:none}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.tc{background:var(--crust);color:#fff;border-radius:14px;padding:8px 14px;align-self:end;height:58px}
+.tc small{display:block;font-size:12px;color:var(--butter2);font-weight:700}.tc b{font:800 20px var(--serif);color:var(--butter)}
+.bar{height:7px;background:#efe3d0;border-radius:9px;margin-top:12px;overflow:hidden}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--butter),var(--jam));border-radius:9px;transition:width .3s}
+.bt{font-size:12px;color:var(--mute);margin-top:4px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 20px;border-radius:16px;border:2px solid var(--crust);font:800 17px var(--sans);cursor:pointer;background:#fff;color:var(--crust)}
+.btn.p{background:var(--crust);color:var(--butter);box-shadow:0 5px 0 #000}.btn.p:active{transform:translateY(3px);box-shadow:0 2px 0 #000}
+.btn.add{width:100%;border-style:dashed;background:transparent;margin-top:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tot{display:flex;justify-content:space-between;align-items:center;background:var(--crust);color:#fff;border-radius:16px;padding:14px 18px;margin-top:14px;font-weight:700}
+.tot b{font:800 26px var(--serif);color:var(--butter)}
+.stats{display:grid;gap:0;background:var(--crust);color:#fff;border-radius:20px;padding:6px 18px;margin-bottom:16px}
+.stats div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.14);font-weight:600}.stats div:last-child{border:0}.stats b{color:var(--butter);font-family:var(--serif);font-size:19px}
+.note{font-size:13px;color:var(--mute);margin:10px 2px 0}
+.acts{display:grid;grid-template-columns:1fr 1.4fr;gap:12px}
+.rec{background:#fff;border:2px solid #e2d3bd;border-radius:18px;padding:14px;margin-bottom:12px}
+.rec h3{margin:0;font:800 19px var(--serif)}.rec .pr{font:800 22px var(--serif);color:var(--jam);white-space:nowrap}
+.rt{display:flex;justify-content:space-between;gap:10px}.rec p{margin:4px 0 10px;color:var(--mute);font-size:14px}
+.sm{min-height:44px;padding:0 16px;font-size:15px;border-radius:12px;margin-right:8px}.sm.d{color:var(--jam);border-color:#efc9cf}
+.empty{text-align:center;padding:40px 16px;border:2px dashed var(--line);border-radius:20px;color:var(--mute)}.empty b{display:block;font:800 20px var(--serif);color:var(--ink);margin:6px 0}
+nav{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 24px),460px);z-index:50;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:7px;background:rgba(43,26,18,.94);backdrop-filter:blur(14px);border-radius:30px;box-shadow:0 14px 34px rgba(43,26,18,.45)}
+nav button{border:0;background:transparent;color:#d9c7b4;border-radius:23px;padding:8px 0 7px;font:700 11px var(--sans);cursor:pointer;display:grid;gap:1px;justify-items:center;transition:.2s}
+nav button span{font-size:22px;line-height:1.1}
+nav button.on{background:var(--butter);color:var(--crust);transform:translateY(-6px);box-shadow:0 8px 16px rgba(0,0,0,.35)}
+.toast{position:fixed;left:50%;bottom:168px;transform:translate(-50%,20px);background:var(--crust);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:60;border:2px solid var(--butter)}.toast.on{opacity:1;transform:translate(-50%,0)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#e9dcc7;border-radius:14px;padding:4px;margin:-2px 0 14px}
+.seg button{border:0;background:transparent;border-radius:11px;min-height:42px;font:800 14px var(--sans);color:var(--crust2);cursor:pointer}
+.seg button.on{background:var(--crust);color:var(--butter)}
+.nm{flex:1;margin-top:6px;min-height:52px;display:flex;align-items:center;font:800 18px var(--sans);padding:0 4px;overflow-wrap:anywhere}
+.ing.lk{border-left-color:var(--ok)}
+.hint{font-size:13px;color:var(--mute);margin-top:8px;font-weight:600}
+.fab{position:fixed;right:max(14px,calc((100vw - 720px)/2 + 14px));bottom:calc(96px + env(safe-area-inset-bottom));z-index:45;min-height:50px;padding:0 18px;border-radius:99px;border:2px solid var(--crust);background:var(--butter);color:var(--crust);font:800 15px var(--sans);box-shadow:0 8px 20px rgba(43,26,18,.35);cursor:pointer}.fab:active{transform:translateY(2px)}
+#rep{display:none}
+@media print{@page{size:A4 landscape;margin:12mm}body>*:not(#rep){display:none!important}body{background:#fff!important;padding:0!important}#rep{display:block;color:#000;font:12px/1.4 Arial,sans-serif}#rep h1{font-size:22px;margin:0}#rep h2{font-size:16px;margin:18px 0 6px}#rep h3{font-size:13px;margin:10px 0 4px}#rep table{width:100%;border-collapse:collapse;margin-bottom:6px}#rep th,#rep td{border:1px solid #999;padding:4px 7px;text-align:left}#rep th{background:#eee}}
+.bk{display:flex;height:22px;border-radius:11px;overflow:hidden;background:#e9dcc7;margin-bottom:8px}.bk i{display:block}.lg{display:flex;justify-content:space-between;padding:8px 2px;font-size:14px;font-weight:600;border-bottom:1px dashed #d9c7a8}.lg b{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:8px}
+.it{width:100%;border-collapse:collapse;font-size:13px}.it th,.it td{text-align:left;padding:6px 8px;border-bottom:1px solid #eadfcc;white-space:nowrap}.it th{color:var(--mute);font-weight:700}.it .tt td{font-weight:800}
+:focus-visible{outline:3px solid var(--jam);outline-offset:2px}
+@media(max-width:380px){.g,.row{gap:10px}.em{width:42px}.x{width:44px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header><div class="wrap"><h1>BakeCost 🍞</h1><p>Know your cost. Price every bake with confidence.</p></div></header>
+<div class="wrap">
+<div class="sum" aria-live="polite"><div><small>Suggested price <span id="yl">per piece</span></small><b id="price">₱0.00</b></div><div class="r">Profit<span id="pp">₱0.00</span></div></div>
+
+<main>
+<section id="home" class="page on">
+<div class="card"><h2><em>🎂</em>What are you baking?</h2>
+<label>Product name<input class="in" id="name" maxlength="50" placeholder="e.g. Ube Cheese Pandesal"></label></div>
+
+<div class="card"><h2><em>🥚</em>Ingredients</h2>
+<div id="addbox" style="margin-bottom:14px"></div>
+<div id="list"></div>
+<div class="tot"><span>Total ingredient cost</span><b id="itot">₱0.00</b></div></div>
+
+<div class="card"><h2><em>🧮</em>Batch &amp; pricing</h2>
+<div class="row">
+<label>Batch yield<div class="sfx"><input class="in" id="yield" type="number" min="1" inputmode="numeric" style="padding-right:62px"><i id="yu">pieces</i></div></label>
+<label>Profit margin<div class="sfx"><input class="in" id="margin" type="number" min="0" max="95" inputmode="decimal"><i>%</i></div></label>
+<label>Packaging <small>(each)</small><div class="cur"><i class="cs">₱</i><input class="in" id="pack" type="number" min="0" step="any" inputmode="decimal"></div></label>
+<label>Labor &amp; overhead <small>(each)</small><div class="cur"><i class="cs">₱</i><input class="in" id="labor" type="number" min="0" step="any" inputmode="decimal"></div></label>
+<label>Waste <small>(on ingredients)</small><div class="sfx"><input class="in" id="waste" type="number" min="0" max="100" step="any" inputmode="decimal"><i>%</i></div></label>
+<label>Selling fee <small>(platform, card)</small><div class="sfx"><input class="in" id="fee" type="number" min="0" max="90" step="any" inputmode="decimal"><i>%</i></div></label>
+</div>
+<div class="chips" id="mchips"></div>
+<p class="note">Margin is a share of the selling price. Waste is added to ingredient cost; the selling fee is taken out of the price you charge.</p></div>
+
+<div class="stats">
+<div><span>Cost per piece</span><b id="cpp">–</b></div>
+<div><span>Total batch cost</span><b id="bc">–</b></div>
+<div><span>Profit per piece</span><b id="pp2">–</b></div>
+<div><span>Batch profit</span><b id="bp">–</b></div></div>
+<div class="card"><h2><em>🥧</em>Where your price goes</h2><div class="bk" id="bk"></div><div id="bkl"></div></div>
+<div class="acts"><button class="btn" id="reset">⟲ Reset</button><button class="btn p" id="log">📝 Log this price</button></div>
+<button class="fab" id="save" type="button" aria-label="Save recipe">⭐ Save recipe</button>
+</section>
+
+<section id="recipes" class="page"><div class="card"><h2><em>📖</em>Saved recipes</h2><button class="btn add" id="newp" style="margin:0 0 14px">＋ New product / menu item</button><div id="rl"></div></div></section>
+<section id="pantry" class="page"><div class="card"><h2><em>🧺</em>Pantry</h2><p class="note" style="margin:-4px 2px 14px">Enter each ingredient's pack size, unit and price once (for example 25 kg for ₱1,200). In every product you then type only the quantity you need, in that unit or a smaller one like g or mg. Sample prices are included – replace them with yours.</p><div id="pl"></div><button class="btn add" id="padd">＋ New pantry item</button></div>
+<div class="card"><h2><em>🛒</em>Shopping list</h2><p class="note" style="margin:-4px 2px 14px">Plan what you will bake. Stock and packs to buy are worked out from your Pantry, including saved recipes used inside other recipes.</p><div class="row"><label>Product<select class="in" id="shp"></select></label><label>Batches<input class="in" id="shb" type="number" min="1" value="1" inputmode="numeric"></label></div><button class="btn p" id="shadd" style="width:100%;margin:12px 0 14px">＋ Add to plan</button><div id="shl"></div></div></section>
+<section id="sales" class="page"><div class="card"><h2><em>💰</em>Sales &amp; earnings</h2>
+<div class="acts"><button class="btn p" id="xl">📥 Export to Excel</button><button class="btn" id="pr">🖨 Print report</button></div>
+<div class="stats" id="sst" style="margin-top:14px"></div>
+<h3 style="margin:20px 2px 8px">Add a sale</h3>
+<div class="row"><label>Product<select class="in" id="sp"></select></label><label>Date<input class="in" id="sd" type="date"></label>
+<label>Quantity<input class="in" id="sq" type="number" min="0" step="any" inputmode="decimal"></label><label>Price each<div class="cur"><i class="cs">₱</i><input class="in" id="spr" type="number" min="0" step="any" inputmode="decimal"></div></label></div>
+<button class="btn p" id="sadd" style="width:100%;margin-top:14px">＋ Add sale</button>
+<h3 style="margin:22px 2px 8px">Monthly earnings</h3><div id="sm"></div>
+<h3 style="margin:22px 2px 8px">Recent sales</h3><div id="sl"></div></div></section>
+<section id="history" class="page"><div class="card"><h2><em>🕒</em>Price history</h2><div id="hl"></div><button class="btn sm d" id="clh">Clear history</button></div></section>
+<section id="settings" class="page"><div class="card"><h2><em>⚙️</em>Settings</h2>
+<label>Currency<select class="in" id="cur"><option value="PHP">₱ Philippine peso</option><option value="USD">$ US dollar</option><option value="SGD">S$ Singapore dollar</option><option value="AED">AED UAE dirham</option><option value="EUR">€ Euro</option><option value="GBP">£ British pound</option></select></label>
+<p class="note">Display only – amounts are not converted.</p>
+<label style="margin-top:14px">Default profit margin<div class="sfx"><input class="in" id="dm" type="number" min="0" max="95"><i>%</i></div></label>
+<label style="margin-top:14px">Yield label<input class="in" id="yu2" maxlength="14" placeholder="pieces, loaves, slices"></label>
+<button class="btn p" id="ss" style="margin-top:18px;width:100%">Save settings</button>
+<p class="note">Everything is stored on this device and works offline.</p></div></section>
+</main></div>
+
+<nav aria-label="Main"><button data-p="pantry"><span>🧺</span>Pantry</button><button class="on" data-p="home"><span>🧮</span>Cost</button><button data-p="recipes"><span>📖</span>Recipes</button><button data-p="sales"><span>💰</span>Sales</button><button data-p="history"><span>🕒</span>History</button><button data-p="settings"><span>⚙️</span>Settings</button></nav>
+<div class="toast" id="toast" role="status"></div>
+<div id="rep"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const N=v=>Math.max(0,parseFloat(v)||0);
+const CUR={PHP:['₱','en-PH'],USD:['$','en-US'],SGD:['S$','en-SG'],AED:['AED','en-AE'],EUR:['€','de-DE'],GBP:['£','en-GB']};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem('bakecost.'+k))??d}catch(e){return d}},sv=(k,v)=>{try{localStorage.setItem('bakecost.'+k,JSON.stringify(v))}catch(e){}};
+let cfg=Object.assign({cur:'PHP',margin:50,yl:'pieces',mode:'qty'},ld('cfg',{}));
+const uid=()=>Math.random().toString(36).slice(2,9);
+/* Pantry: each ingredient's price is entered once (sample prices – edit to your own) */
+const SEED=[['Flour','g',1000,50],['Sugar','g',1000,60],['Butter','g',250,100],['Eggs','pc',30,240],['Milk','ml',1000,80],['Yeast','g',500,250],['Chocolate','g',1000,500]];
+let pantry=ld('pantry',null);if(!pantry){pantry=SEED.map(a=>({id:uid(),n:a[0],u:a[1],size:a[2],price:a[3]}));sv('pantry',pantry)}
+/* Units: pick the unit you buy in on the Pantry; use any smaller/larger unit of the same kind in a product */
+const UG=[['Weight',[['mg',.001],['g',1],['kg',1000],['oz',28.3495],['lb',453.592]]],['Volume',[['ml',1],['L',1000],['tsp',4.92892],['tbsp',14.7868],['cup',236.588]]],['Count',[['pc',1],['dozen',12]]]];
+const UF={};UG.forEach(g=>g[1].forEach(u=>UF[u[0]]=[g[0],u[1]]));
+const fac=u=>UF[u]?UF[u][1]:1,sib=u=>UF[u]?UG.find(g=>g[0]===UF[u][0])[1].map(x=>x[0]):[u];
+const ucost=i=>N(i.p)*fac(i.ru)/fac(i.u),lineCost=i=>N(i.q)*ucost(i);   /* price per chosen unit / cost of the line */
+const unitSel=u=>`<select class="in" data-pk="u" aria-label="Unit">${UG.map(g=>`<optgroup label="${g[0]}">${g[1].map(x=>`<option${x[0]===u?' selected':''}>${x[0]}</option>`).join('')}</optgroup>`).join('')}${UF[u]?'':`<option selected>${esc(u)}</option>`}</select>`;
+const pc=p=>N(p.size)>0?N(p.price)/N(p.size):0;           /* cost per single unit */
+const link=(p,q='')=>({id:uid(),pid:p.id,n:p.n,u:p.u,ru:p.u,q,p:pc(p)});
+const blank=()=>({name:'',yield:12,margin:cfg.margin,pack:3,labor:5,waste:0,fee:0,ing:pantry.slice(0,2).map((p,k)=>link(p,[500,100][k]))});
+let S=ld('draft',null)||blank(),recipes=ld('recipes',[]),hist=ld('hist',[]);
+const E=[[/flour|bread|dough/i,'🌾'],[/egg/i,'🥚'],[/butter|margarine/i,'🧈'],[/milk|cream|cheese/i,'🥛'],[/sugar|honey|syrup/i,'🍯'],[/choc|cocoa/i,'🍫'],[/yeast|baking|powder|soda/i,'🫧'],[/salt/i,'🧂'],[/vanilla|extract/i,'🌿'],[/ube|berry|fruit|apple|banana|lemon|orange|mango/i,'🍓'],[/nut|almond|walnut|peanut/i,'🥜'],[/oil/i,'🫒']];
+const emo=n=>(E.find(e=>e[0].test(n))||[0,'🥣'])[1];
+const fmt=(v,max)=>new Intl.NumberFormat(CUR[cfg.cur][1],{style:'currency',currency:cfg.cur,minimumFractionDigits:2,maximumFractionDigits:max}).format(isFinite(v)?v:0);
+const money=v=>fmt(v,2),um=v=>fmt(v,v>0&&v<1?4:2);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* keep a row's name/unit/price in step with its Pantry item; if the item was deleted, the row keeps its last price */
+let depth=0;
+function sync(i){const p=i.pid&&pantry.find(x=>x.id===i.pid),r=i.rid&&recipes.find(x=>x.id===i.rid);
+if(p){i.n=p.n;i.u=p.u;i.p=pc(p)}else if(r){i.n=r.s.name;i.u='pc';if(depth<4){depth++;i.p=calc(r.s).per;depth--}}else i.pid=null;
+if(!sib(i.u).includes(i.ru))i.ru=i.u;return i}
+function calc(T=S){T.ing.forEach(sync);const ing=T.ing.reduce((a,i)=>a+lineCost(i),0),y=Math.max(1,N(T.yield)),m=Math.min(90,N(T.margin)),f=Math.min(90-m,N(T.fee)),batch=ing*(1+N(T.waste)/100)+(N(T.pack)+N(T.labor))*y,per=batch/y,price=per/(1-(m+f)/100);return{ing,y,m,batch,per,price,pp:price-per-price*f/100,bp:(price-per-price*f/100)*y,parts:[['Ingredients',ing],['Waste',ing*N(T.waste)/100],['Packaging',N(T.pack)*y],['Labor & overhead',N(T.labor)*y],['Selling fee',price*f/100*y],['Profit',(price-per-price*f/100)*y]]}}
+const BC=['#7a4a2b','#c98b3b','#8fa66b','#5b7fa6','#b83b5e','#3a8f5c'];
+function upd(){const c=calc();const tot=c.price*c.y;$('#bk').innerHTML=c.parts.map((x,k)=>`<i style="width:${tot?x[1]/tot*100:0}%;background:${BC[k]}"></i>`).join('');$('#bkl').innerHTML=c.parts.map((x,k)=>`<div class="lg"><span><b style="background:${BC[k]}"></b>${x[0]}</span><span>${money(x[1]/c.y)} · ${tot?Math.round(x[1]/tot*100):0}%</span></div>`).join('');
+$('#price').textContent=money(c.price);$('#pp').textContent=money(c.pp);$('#pp2').textContent=money(c.pp);$('#itot').textContent=money(c.ing);
+$('#cpp').textContent=money(c.per);$('#bc').textContent=money(c.batch);$('#bp').textContent=money(c.bp);
+$('#yl').textContent='per '+(cfg.yl.replace(/s$/,'')||'piece');$('#yu').textContent=cfg.yl;
+$$('.cs').forEach(e=>e.textContent=CUR[cfg.cur][0]);
+$$('#list .ing').forEach(r=>{const i=S.ing.find(x=>x.id===r.dataset.id),t=lineCost(i);r.querySelector('.hint').textContent=um(ucost(i))+' per '+i.ru+(i.pid?' · price from Pantry':recipes.some(x=>x.id===i.rid)?' · cost per piece of your saved recipe':' · removed, last price kept');r.querySelector('[data-c]').textContent=money(t);r.querySelector('.bar span').style.width=(c.ing?t/c.ing*100:0)+'%';r.querySelector('.bt').textContent=(c.ing?Math.round(t/c.ing*100):0)+'% of ingredient cost';r.querySelector('.em').textContent=emo(i.n)});
+$$('#mchips .chip').forEach(b=>b.classList.toggle('on',+b.dataset.m===N(S.margin)));sv('draft',S)}
+function row(i){return `<div class="ing lk" data-id="${i.id}"><div class="ih"><span class="em"></span><div class="nm">${esc(i.n||'Unnamed')}</div><button class="x" data-del="${i.id}" aria-label="Remove ${esc(i.n)}">🗑</button></div>
+<div class="g"><label>Quantity needed<input class="in" type="number" min="0" step="any" inputmode="decimal" data-k="q" value="${i.q}" placeholder="0"></label><label>Unit<select class="in" data-k="ru">${sib(i.u).map(u=>`<option${u===i.ru?' selected':''}>${esc(u)}</option>`).join('')}</select></label><div class="tc" style="grid-column:1/-1"><small>Total cost</small><b data-c></b></div></div>
+<div class="bar"><span></span></div><div class="bt"></div><div class="hint"></div></div>`}
+function rIng(){S.ing.forEach(sync);
+$('#list').innerHTML=S.ing.length?S.ing.map(row).join(''):`<div class="empty" style="padding:22px 12px;margin-bottom:12px"><b>No ingredients yet</b>Add your first one above.</div>`;rAdd();upd()}
+function rAdd(){$('#addbox').innerHTML=pantry.length?`<div class="hint" style="margin:0 2px 8px">Tap an ingredient, then type only the quantity you need.</div><div class="chips" style="margin-top:0">${pantry.map(p=>`<button type="button" class="chip" data-pa="${p.id}">＋ ${esc(p.n||'Unnamed')}</button>`).join('')}${recipes.filter(r=>r.s.name.trim().toLowerCase()!==S.name.trim().toLowerCase()).map(r=>`<button type="button" class="chip" data-ra="${r.id}">＋ 📖 ${esc(r.s.name)}</button>`).join('')}<button type="button" class="chip" data-go="pantry">🧺 Edit pantry</button></div>`:`<button type="button" class="btn add" data-go="pantry">🧺 Add your ingredients to the Pantry first</button>`}
+function fill(){$('#name').value=S.name;['yield','margin','pack','labor','waste','fee'].forEach(k=>$('#'+k).value=S[k]??'')}
+const focusQ=id=>{const f=document.querySelector(`#list .ing[data-id="${id}"] [data-k=q]`);if(f){f.focus();f.scrollIntoView({block:'center',behavior:'smooth'})}};
+$('#list').addEventListener('input',e=>{const r=e.target.closest('.ing');if(!r||!e.target.dataset.k)return;S.ing.find(x=>x.id===r.dataset.id)[e.target.dataset.k]=e.target.value;upd()});
+$('#list').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(b){S.ing=S.ing.filter(i=>i.id!==b.dataset.del);rIng()}});
+['name','yield','margin','pack','labor'].forEach(k=>$('#'+k).addEventListener('input',e=>{S[k]=e.target.value;upd()}));
+$('#addbox').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+if(d.go)return go(d.go);
+if(d.ra){const r=recipes.find(x=>x.id===d.ra),ex=S.ing.find(i=>i.rid===d.ra);if(ex){focusQ(ex.id);toast(r.s.name+' is already added');return}const w={id:uid(),rid:d.ra,n:r.s.name,u:'pc',ru:'pc',q:'',p:0};S.ing.push(w);rIng();focusQ(w.id);return}
+if(d.pa){const p=pantry.find(x=>x.id===d.pa),ex=S.ing.find(i=>i.pid===p.id);if(ex){focusQ(ex.id);toast(p.n+' is already added');return}const r=link(p);S.ing.push(r);rIng();focusQ(r.id);return}
+});
+$('#mchips').innerHTML=[30,40,50,60,70].map(m=>`<button type="button" class="chip" data-m="${m}">${m}% margin</button>`).join('');
+$('#mchips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.margin=b.dataset.m;$('#margin').value=S.margin;upd()}};
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
+const snap=()=>JSON.parse(JSON.stringify(S));
+const fresh=()=>{S=blank();S.ing=[];fill();rIng()};
+$('#reset').onclick=()=>{if(confirm('Clear this calculation and start fresh?')){fresh();toast('Fresh start')}};
+$('#newp').onclick=()=>{if(confirm('Start a new product? The current unsaved calculation will be cleared.')){fresh();go('home');toast('New product')}};
+$('#log').onclick=()=>{const c=calc();hist.unshift({id:uid(),t:Date.now(),s:snap(),price:c.price,batch:c.batch,bp:c.bp});hist=hist.slice(0,50);sv('hist',hist);toast('Price logged');scrollTo({top:0,behavior:'smooth'})};
+$('#save').onclick=()=>{if(!S.name.trim()){toast('Name your product first');$('#name').focus();return}const c=calc(),r={id:uid(),t:Date.now(),s:snap(),price:c.price};const k=recipes.findIndex(x=>x.s.name.toLowerCase()===S.name.trim().toLowerCase());k>-1?recipes[k]=r:recipes.unshift(r);sv('recipes',recipes);rAdd();toast('Recipe saved')};
+const dt=t=>new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const empty=(i,t,d)=>`<div class="empty"><span style="font-size:38px">${i}</span><b>${t}</b>${d}</div>`;
+const idet=s=>`<div style="overflow-x:auto;margin:0 0 6px"><table class="it"><tr><th>Ingredient</th><th>Qty</th><th>Price / unit</th><th>Cost</th></tr>${s.ing.map(i=>`<tr><td>${esc(i.n)}</td><td>${q2(N(i.q))} ${esc(i.ru)}</td><td>${um(ucost(i))} / ${esc(i.ru)}</td><td>${money(lineCost(i))}</td></tr>`).join('')}<tr class="tt"><td colspan="3">Ingredients subtotal</td><td>${money(calc(s).ing)}</td></tr></table></div><p>Packaging ${money(N(s.pack))} · Labor ${money(N(s.labor))} · Waste ${N(s.waste)}% · Selling fee ${N(s.fee)}% · Margin ${N(s.margin)}%</p>`;
+function lists(){$('#rl').innerHTML=recipes.length?recipes.map(r=>`<div class="rec"><div class="rt"><h3>${esc(r.s.name)}</h3><span class="pr">${money(calc(r.s).price)}</span></div><p>${r.s.ing.length} ingredients · ${r.s.yield} ${esc(cfg.yl)} · ${dt(r.t)}</p>${idet(r.s)}<button class="btn sm" data-open="${r.id}">Open</button><button class="btn sm d" data-rd="${r.id}">Delete</button></div>`).join(''):empty('📖','No recipes yet','Build a cost on the Cost tab, then tap Save recipe.');
+$('#hl').innerHTML=hist.length?hist.map(h=>`<div class="rec"><div class="rt"><h3>${esc(h.s.name||'Untitled bake')}</h3><span class="pr">${money(h.price)}</span></div><p>${dt(h.t)} · batch cost ${money(h.batch)} · batch profit ${money(h.bp)}</p><button class="btn sm" data-hl="${h.id}">Load</button><button class="btn sm d" data-hd="${h.id}">Delete</button></div>`).join(''):empty('🕒','Nothing logged yet','Tap Log this price to keep a record of what you charged.')}
+/* Pantry page */
+function rPan(){$('#shp').innerHTML=recipes.map(r=>`<option value="${r.id}">${esc(r.s.name)}</option>`).join('')||'<option value="">Save a recipe first</option>';$('#pl').innerHTML=pantry.length?pantry.map(p=>`<div class="pit" data-pid="${p.id}"><div class="ih"><span class="em">${emo(p.n)}</span><input class="in" data-pk="n" value="${esc(p.n)}" placeholder="Ingredient name" aria-label="Pantry ingredient name"><button class="x" data-pdel="${p.id}" aria-label="Delete pantry item">🗑</button></div>
+<div class="g"><label>Pack size <small>(in the unit →)</small><input class="in" type="number" min="0" step="any" inputmode="decimal" data-pk="size" value="${p.size}" placeholder="e.g. 1000"></label><label>Unit<span style="display:block">${unitSel(p.u)}</span></label>
+<label>Pack price<div class="cur"><i>${CUR[cfg.cur][0]}</i><input class="in" type="number" min="0" step="any" inputmode="decimal" data-pk="price" value="${p.price}"></div></label><label>In stock<input class="in" type="number" min="0" step="any" inputmode="decimal" data-pk="stock" value="${p.stock??''}" placeholder="0"></label><div class="tc" style="grid-column:1/-1"><small data-pu>Cost per ${esc(p.u||'unit')}</small><b data-pc>${um(pc(p))}</b></div></div></div>`).join(''):empty('🧺','Your pantry is empty','Add the ingredients you buy, with the pack size and price.')}
+$('#pl').addEventListener('input',e=>{const r=e.target.closest('.pit'),k=e.target.dataset.pk;if(!r||!k)return;const p=pantry.find(x=>x.id===r.dataset.pid);p[k]=e.target.value;sv('pantry',pantry);
+r.querySelector('[data-pc]').textContent=um(pc(p));if(k!=='n'&&k!=='u')rShop();r.querySelector('[data-pu]').textContent='Cost per '+(p.u||'unit');if(k==='n')r.querySelector('.em').textContent=emo(p.n)});
+$('#pl').addEventListener('click',e=>{const b=e.target.closest('[data-pdel]');if(b){pantry=pantry.filter(p=>p.id!==b.dataset.pdel);sv('pantry',pantry);rPan();toast('Removed – products keep the last price')}});
+$('#padd').onclick=()=>{pantry.push({id:uid(),n:'',u:'g',size:'',price:''});sv('pantry',pantry);rPan();const f=$$('#pl .pit [data-pk=n]').at(-1);f.focus();f.scrollIntoView({block:'center',behavior:'smooth'})};
+document.addEventListener('click',e=>{const t=e.target;let id;
+if(id=t.dataset.open){S=JSON.parse(JSON.stringify(recipes.find(r=>r.id===id).s));fill();go('home')}
+else if(id=t.dataset.hl){S=JSON.parse(JSON.stringify(hist.find(r=>r.id===id).s));fill();go('home')}
+else if(id=t.dataset.rd){recipes=recipes.filter(r=>r.id!==id);sv('recipes',recipes);lists()}
+else if(id=t.dataset.hd){hist=hist.filter(r=>r.id!==id);sv('hist',hist);lists()}});
+$('#clh').onclick=()=>{if(hist.length&&confirm('Clear all price history?')){hist=[];sv('hist',hist);lists()}};
+function go(p){$$('.page').forEach(s=>s.classList.toggle('on',s.id===p));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(p==='home')rIng();if(p==='pantry'){rPan();rShop()}if(p==='sales')rSales();if(p!=='home')lists();scrollTo({top:0})}
+$$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+/* ===== Sales & earnings ===== */
+let sales=ld('sales',[]);
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const sCost=s=>s.q*(s.c+s.p*(s.fp||0)/100),sRev=s=>s.q*s.p;
+const mname=m=>new Date(m+'-01T00:00').toLocaleDateString(undefined,{month:'long',year:'numeric'});
+function months(){const o={};sales.forEach(s=>{const m=s.d.slice(0,7),a=o[m]||(o[m]={m,n:0,q:0,rev:0,cost:0});a.n++;a.q+=s.q;a.rev+=sRev(s);a.cost+=sCost(s)});return Object.values(o).sort((a,b)=>b.m.localeCompare(a.m))}
+function fp(){const r=recipes.find(x=>x.id===$('#sp').value);if(r)$('#spr').value=calc(r.s).price.toFixed(2)}
+function rSales(){$('#sp').innerHTML=recipes.map(r=>`<option value="${r.id}">${esc(r.s.name)}</option>`).join('')||'<option value="">Save a recipe first</option>';if(!$('#sd').value)$('#sd').value=today();fp();
+const M=months(),cur=M.find(x=>x.m===today().slice(0,7))||{n:0,rev:0,cost:0};
+$('#sst').innerHTML=[['Revenue this month',money(cur.rev)],['Cost this month',money(cur.cost)],['Profit this month',money(cur.rev-cur.cost)],['Orders this month',cur.n]].map(a=>`<div><span>${a[0]}</span><b>${a[1]}</b></div>`).join('');
+$('#sm').innerHTML=M.length?M.map(a=>`<div class="rec"><div class="rt"><h3>${mname(a.m)}</h3><span class="pr">${money(a.rev-a.cost)}</span></div><p>Revenue ${money(a.rev)} · cost ${money(a.cost)} · ${a.n} orders · ${a.q} pcs</p></div>`).join(''):empty('📈','No sales yet','Add a sale above to see your monthly earnings.');
+$('#sl').innerHTML=sales.slice(0,60).map(s=>`<div class="rec"><div class="rt"><h3>${esc(s.name)} × ${s.q}</h3><span class="pr">${money(sRev(s)-sCost(s))}</span></div><p>${s.d} · ${money(s.p)} each · revenue ${money(sRev(s))}</p><button class="btn sm d" data-sd="${s.id}">Delete</button></div>`).join('')}
+$('#sp').onchange=fp;
+$('#sadd').onclick=()=>{const r=recipes.find(x=>x.id===$('#sp').value),q=N($('#sq').value),p=N($('#spr').value);if(!r||!q){toast('Pick a product and quantity');return}
+sales.push({id:uid(),d:$('#sd').value||today(),name:r.s.name,q,p,c:calc(r.s).per,fp:N(r.s.fee)});sales.sort((a,b)=>b.d.localeCompare(a.d));sv('sales',sales);$('#sq').value='';rSales();toast('Sale added')};
+$('#sl').addEventListener('click',e=>{const b=e.target.closest('[data-sd]');if(b){sales=sales.filter(s=>s.id!==b.dataset.sd);sv('sales',sales);rSales()}});
+/* ===== Export to Excel (.xlsx, built in the browser – no libraries) ===== */
+const prods=()=>{const a=recipes.map(r=>r.s);if(!a.some(s=>s.name.trim().toLowerCase()===S.name.trim().toLowerCase()&&S.name.trim()))a.push(S);return a};
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc=b=>{let c=-1;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(c^-1)>>>0};
+function zip(files){const te=new TextEncoder(),parts=[],cen=[];let off=0;
+files.forEach(([n,s])=>{const nb=te.encode(n),d=te.encode(s),c=crc(d),h=new DataView(new ArrayBuffer(30)),e=new DataView(new ArrayBuffer(46));
+h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x800,true);h.setUint16(12,0x21,true);h.setUint32(14,c,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nb.length,true);
+e.setUint32(0,0x02014b50,true);e.setUint16(4,20,true);e.setUint16(6,20,true);e.setUint16(8,0x800,true);e.setUint16(14,0x21,true);e.setUint32(16,c,true);e.setUint32(20,d.length,true);e.setUint32(24,d.length,true);e.setUint16(28,nb.length,true);e.setUint32(42,off,true);
+parts.push(new Uint8Array(h.buffer),nb,d);cen.push(new Uint8Array(e.buffer),nb);off+=30+nb.length+d.length});
+const cs=cen.reduce((a,x)=>a+x.length,0),z=new DataView(new ArrayBuffer(22));z.setUint32(0,0x06054b50,true);z.setUint16(8,files.length,true);z.setUint16(10,files.length,true);z.setUint32(12,cs,true);z.setUint32(16,off,true);
+return new Blob([...parts,...cen,new Uint8Array(z.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const xe=s=>String(s).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const cn=n=>{let s='';for(n++;n;n=(n-1-(n-1)%26)/26)s=String.fromCharCode(65+(n-1)%26)+s;return s};
+function sheetXml(rows,w){const body=rows.map((row,i)=>`<row r="${i+1}">`+row.map((c,j)=>{const r=cn(j)+(i+1);
+if(c&&c.f)return`<c r="${r}" s="2"><f>${xe(c.f)}</f><v>${c.v}</v></c>`;
+if(typeof c==='number')return`<c r="${r}" s="2"><v>${c}</v></c>`;
+return`<c r="${r}" s="${i?0:1}" t="inlineStr"><is><t>${xe(c)}</t></is></c>`}).join('')+'</row>').join('');
+return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${w.map((x,i)=>`<col min="${i+1}" max="${i+1}" width="${x}" customWidth="1"/>`).join('')}</cols><sheetData>${body}</sheetData></worksheet>`}
+function xlsx(sheets){const ns='http://schemas.openxmlformats.org/',H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+return zip([['[Content_Types].xml',H+`<Types xmlns="${ns}package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`],
+['_rels/.rels',H+`<Relationships xmlns="${ns}package/2006/relationships"><Relationship Id="rId1" Type="${ns}officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+['xl/workbook.xml',H+`<workbook xmlns="${ns}spreadsheetml/2006/main" xmlns:r="${ns}officeDocument/2006/relationships"><sheets>${sheets.map((s,i)=>`<sheet name="${xe(s[0])}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`],
+['xl/_rels/workbook.xml.rels',H+`<Relationships xmlns="${ns}package/2006/relationships">${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="${ns}officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length+1}" Type="${ns}officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+['xl/styles.xml',H+`<styleSheet xmlns="${ns}spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2B1A12"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`],
+...sheets.map((s,i)=>[`xl/worksheets/sheet${i+1}.xml`,sheetXml(s[1],s[2])])])}
+const r2=v=>Math.round(v*100)/100;
+function exportXlsx(){const P=prods(),cs=P.map(s=>[s,calc(s)]);
+const sh=[
+['Summary',[['Month','Orders','Pieces','Revenue','Cost','Profit'],...months().map(a=>[mname(a.m),a.n,a.q,r2(a.rev),r2(a.cost),r2(a.rev-a.cost)])],[18,10,10,14,14,14]],
+['Sales',[['Date','Product','Qty','Price each','Cost each (incl. fees)','Revenue','Cost','Profit'],...sales.map((s,i)=>{const n=i+2,c=s.c+s.p*(s.fp||0)/100;return[s.d,s.name,s.q,s.p,r2(c),{f:`C${n}*D${n}`,v:r2(s.q*s.p)},{f:`C${n}*E${n}`,v:r2(s.q*c)},{f:`F${n}-G${n}`,v:r2(s.q*(s.p-c))}]})],[12,26,8,12,20,12,12,12]],
+['Products',[['Product','Yield','Cost per piece','Batch cost','Suggested price','Profit per piece','Margin %','Selling fee %','Waste %'],...cs.map(([s,c])=>[s.name||'(Current draft)',N(s.yield),r2(c.per),r2(c.batch),r2(c.price),r2(c.pp),N(s.margin),N(s.fee),N(s.waste)])],[26,8,14,14,16,16,10,12,10]],
+['Ingredients',[['Product','Ingredient','Quantity','Unit','Cost per unit','Line cost'],...cs.flatMap(([s])=>s.ing.map(i=>[s.name||'(Current draft)',i.n,N(i.q),i.ru,Math.round(ucost(i)*1e4)/1e4,r2(lineCost(i))]))],[26,22,10,8,14,12]],
+['Pantry',[['Ingredient','Pack size','Unit','Pack price','Cost per unit','In stock'],...pantry.map(p=>[p.n,N(p.size),p.u,N(p.price),Math.round(pc(p)*1e4)/1e4,N(p.stock)])],[22,10,8,12,14,10]],
+['Shopping list',[['Ingredient','Need','In stock','Unit','Packs to buy','Pack size','Est. cost'],...shopRows().map(a=>[a.p.n,q2(a.need),q2(a.st),a.p.u,a.packs,N(a.p.size),r2(a.cost)])],[22,10,10,8,12,10,12]]];
+const a=document.createElement('a');a.href=URL.createObjectURL(xlsx(sh));a.download='BakeCost-'+today()+'.xlsx';document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast('Excel file ready')}
+$('#xl').onclick=exportXlsx;
+/* ===== Printable report (A4 landscape) ===== */
+function report(){const P=prods(),t=(h,r)=>`<table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`;
+$('#rep').innerHTML=`<h1>BakeCost report</h1><p>${new Date().toLocaleDateString()}</p><h2>Products</h2>`+t(['Product','Yield','Cost / piece','Batch cost','Selling price','Profit / piece'],P.map(s=>{const c=calc(s);return[esc(s.name||'(Current draft)'),c.y,money(c.per),money(c.batch),money(c.price),money(c.pp)]}))
++`<h2>Ingredient costs</h2>`+P.map(s=>`<h3>${esc(s.name||'(Current draft)')}</h3>`+t(['Ingredient','Quantity','Unit','Cost'],s.ing.map(i=>[esc(i.n),N(i.q),esc(i.ru),money(lineCost(i))]))).join('')
++`<h2>Monthly earnings</h2>`+t(['Month','Orders','Revenue','Cost','Profit'],months().map(a=>[mname(a.m),a.n,money(a.rev),money(a.cost),money(a.rev-a.cost)]));window.print()}
+$('#pr').onclick=report;
+/* ===== Shopping list & stock ===== */
+let plan=ld('plan',[]);const q2=v=>Math.round(v*100)/100;
+function needs(s,mult,out={},d=0){s.ing.forEach(sync);s.ing.forEach(i=>{if(i.rid){const r=recipes.find(x=>x.id===i.rid);if(r&&d<4)needs(r.s,mult*N(i.q)*fac(i.ru)/Math.max(1,N(r.s.yield)),out,d+1)}else if(i.pid)out[i.pid]=(out[i.pid]||0)+mult*N(i.q)*fac(i.ru)/fac(i.u)});return out}
+function shopRows(){const n={};plan.forEach(x=>{const r=recipes.find(y=>y.id===x.rid);if(r)needs(r.s,N(x.b),n)});
+return pantry.filter(p=>n[p.id]>0).map(p=>{const need=n[p.id],buy=Math.max(0,need-N(p.stock)),packs=N(p.size)>0?Math.ceil(buy/N(p.size)-1e-9):0;return{p,need,st:N(p.stock),packs,cost:packs*N(p.price)}})}
+function rShop(){const R=shopRows(),tot=R.reduce((a,x)=>a+x.cost,0);
+$('#shl').innerHTML=plan.length?plan.map(x=>{const r=recipes.find(y=>y.id===x.rid);return`<div class="rec"><div class="rt"><h3>${esc(r?r.s.name:'(deleted recipe)')}</h3><span class="pr">× ${x.b}</span></div><button class="btn sm d" data-shd="${x.id}">Remove</button></div>`}).join('')
++R.map(a=>`<div class="rec"><div class="rt"><h3>${esc(a.p.n)}</h3><span class="pr">${a.packs?`Buy ${a.packs} × ${esc(a.p.size)} ${esc(a.p.u)}`:'In stock ✓'}</span></div><p>Need ${q2(a.need)} ${esc(a.p.u)} · in stock ${q2(a.st)}${a.packs?' · '+money(a.cost):''}</p></div>`).join('')
++`<div class="rt" style="margin:12px 2px"><h3>Estimated shopping total</h3><span class="pr">${money(tot)}</span></div><div class="acts"><button class="btn p" data-bought="1">✅ Bought</button><button class="btn" data-used="1">🍞 Baked</button></div>`
+:empty('🛒','Nothing planned','Pick a product and how many batches you will bake.')}
+$('#shadd').onclick=()=>{const id=$('#shp').value;if(!id){toast('Save a recipe first');return}const b=Math.max(1,N($('#shb').value)||1),x=plan.find(y=>y.rid===id);x?x.b+=b:plan.push({id:uid(),rid:id,b});sv('plan',plan);rShop()};
+$('#shl').addEventListener('click',e=>{const d=e.target.closest('button')?.dataset;if(!d)return;
+if(d.shd){plan=plan.filter(x=>x.id!==d.shd);sv('plan',plan)}
+else if(d.bought){shopRows().forEach(a=>{if(a.packs)a.p.stock=q2(N(a.p.stock)+a.packs*N(a.p.size))});toast('Stock updated')}
+else if(d.used){shopRows().forEach(a=>a.p.stock=q2(Math.max(0,N(a.p.stock)-a.need)));plan=[];sv('plan',plan);toast('Stock deducted')}else return;
+sv('pantry',pantry);rPan();rShop()});
+$('#ss').onclick=()=>{cfg=Object.assign(cfg,{cur:$('#cur').value,margin:Math.min(95,N($('#dm').value)),yl:$('#yu2').value.trim()||'pieces'});sv('cfg',cfg);rIng();toast('Settings saved')};
+$('#cur').value=cfg.cur;$('#dm').value=cfg.margin;$('#yu2').value=cfg.yl;
+fill();rIng();
+if(!ld('seen',0)){sv('seen',1);go('pantry')}
+</script><script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body></html>
